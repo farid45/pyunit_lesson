@@ -73,7 +73,7 @@ pip3 install -r requirements.txt
 #### Grab файлы и установка
 ```
 git clone https://github.com/farid45/pyunit_lesson.git
-cd pyinit_lesson
+cd pyunit_lesson
 pip3 install -r requirements.txt
 ```
 
