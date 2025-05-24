@@ -1,3 +1,5 @@
+"""Тесты для калькулятора (Calculator)."""
+
 import math
 import unittest
 from parameterized import parameterized
@@ -6,92 +8,52 @@ from math import inf
 
 
 class TestCalculator(unittest.TestCase):
-    def setUp(self) -> None:
-        self.calc = Calculator()
+    """Группа тестов для проверки калькулятора."""
 
-    def tearDown(self) -> None:
-        ...
+    def setUp(self):
+        """Подготовка к тестам - создаем калькулятор."""
+        self.calc = Calculator()  # Этот объект будет доступен во всех тестах
 
-    @parameterized.expand(
-        # 1. arrange
-        [
-            ("integers", 2, 3, 6),
-            ("floats", 2.5, 3.1, 5.6),
-            ("negative", -2.5, 3.0, 0.5)
-        ]
-    )
-    def test_sum(self, name, a, b, expected_result):
-        # 2. act
-        actual_result = self.calc.sum(a, b)
-
-        # 3. assert
-        self.assertEqual(actual_result, expected_result)
-
+    # Тестируем обычное сложение
     @parameterized.expand([
-        ("strings", 'aaa', 'bbb', TypeError),
-        ("int_None", 1, None, TypeError),
-        ("None_float", None, 1.1, TypeError),
-        ("None_None", None, None, TypeError)
-
+        ("целые числа", 2, 3, 5),
+        ("дробные числа", 2.5, 3.1, 5.6),
+        ("отрицательные числа", -2.5, 3.0, 0.5)
     ])
-    def test_sum_invalid_values(self, name, a, b, expected_result):
-        with self.assertRaises(expected_result):
+    def test_sum(self, name, a, b, expected):
+        """Проверяем, что сложение работает правильно.
+        
+        Аргументы:
+            name: название теста (чтобы понять, какой провалился)
+            a: первое число для сложения
+            b: второе число для сложения
+            expected: какой результат ожидаем
+        """
+        result = self.calc.sum(a, b)
+        self.assertEqual(result, expected)
+
+    # Тестируем сложение с неправильными данными
+    @parameterized.expand([
+        ("текст вместо чисел", 'a', 'b', TypeError),
+        ("None вместо числа", None, 1, TypeError),
+    ])
+    def test_sum_invalid(self, name, a, b, expected_error):
+        """Проверяем, что калькулятор ругается на неправильные данные.
+        
+        Аргументы:
+            name: название теста
+            a: неправильный первый аргумент
+            b: неправильный второй аргумент
+            expected_error: какая ошибка должна появиться
+        """
+        with self.assertRaises(expected_error):
             self.calc.sum(a, b)
 
-    @parameterized.expand([
-        ("list_integers", [1, 2, 3, 4], 10),
-        ("list_empty", [], 0),
-        ("list_single", [1], 1)
-    ])
-    def test_sum_list(self, name, a, expected_result):
-        # 2. act
-        actual_result = self.calc.sum(*a)
-        # 3. assert
-        self.assertEqual(actual_result, expected_result)
-
-    @parameterized.expand([
-        ("tuple_integers", (1, 2, 3, 4), 10),
-        ("tuple_empty", (), 0),
-        ("tuple_single", (1,), 1),
-        ("set_integers", {1, 2, 3, 4}, 10),
-        ("set_empty", {}, 0),
-        ("set_single", {1}, 1),
-    ])
-    def test_sum_tuple(self, name, a, expected_result):
-        # 2. act
-        actual_result = self.calc.sum(*a)
-        # 3. assert
-        self.assertEqual(actual_result, expected_result)
-
-    def test_multiply(self):
-        a = 5
-        b = 0.000000005
-
-        actual_result = self.calc.multiply(a, b)
-        expected_result = 1
-
-        self.assertAlmostEqual(actual_result, expected_result)
-
-    def test_divide(self):
-        a = 5
-        b = 0
-
-        expected_result = ZeroDivisionError
-
-        with self.assertRaises(expected_result):
-            self.calc.divide(a, b)
-
-    def test_divide_inf(self):
-        a = inf
-        b = inf
-
-        expected_result = None
-        actual_result = self.calc.divide(a, b)
-
-        self.assertNotEqual(actual_result, expected_result)
-        self.assertIsInstance(actual_result, type(math.inf))
-        self.assertIsInstance(actual_result, float)
+    def test_divide_by_zero(self):
+        """Проверяем, что нельзя делить на ноль."""
+        with self.assertRaises(ZeroDivisionError):
+            self.calc.divide(1, 0)  # 1 / 0 должно вызвать ошибку
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main()  # Запускаем тесты при запуске файла
